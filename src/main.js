@@ -21,37 +21,11 @@ app.main = function(){
 	var obj = {};
 
 	// loader is a sub module of main, also instantiated with an IIFE.
-	// it will be used to load JSON objects asynchronously, as well as manage onload functions.
+	// it will be used to load JSON objects asynchronously
 	obj.loader = function(){
 
 		// this will eventually be app.main.loader
 		var obj = {};
-
-		// by the design of addOnLoadEvent, this will execute after every module has finished all its
-		// onload logic (that is, they should be more or less initialized, save for JSON requests)
-		function onOnLoadEventsComplete(){
-
-		}
-		window.onload = onOnLoadEventsComplete;
-		// adds the function f that is passed in to a massive window.onload function
-		// in short, it consolidates all the logic we need on page load into a single function, 
-		// so that we can keep onload logic within the individual modules for organization
-		// and readability
-		obj.addOnLoadEvent = function(f){
-			var prevOnLoad = window.onload;
-			if( typeof window.onload != 'function'){
-				window.onload = f;
-			}
-			else{
-				window.onload = function(){
-					f();
-					if(prevOnLoad){ // first function in, last function called. important for implementation.
-						prevOnLoad();
-					}
-				}
-			}
-
-		};
 
 		// this variable will be accessible only to functions inside of app.main.loader
 		// it tracks the number of json files that are currently being loaded asynchronously
@@ -81,6 +55,42 @@ app.main = function(){
 		return obj;
 	}();
 
+	obj.update = function(){
+		app.renderer.draw();
+	}
+
 
 	return obj;
 }();
+
+
+// by the design of addOnLoadEvent, this will execute after every module has finished all its
+// onload logic (that is, they should be more or less initialized, save for JSON requests)
+function onOnLoadEventsComplete(){
+
+	// we need the bind here because requestAnimationFrame destroys the scope of update
+	// when it uses it as a callback
+	window.requestAnimationFrame(app.main.update.bind(app.main));
+
+}
+window.onload = onOnLoadEventsComplete;
+
+// adds the function f that is passed in to a massive window.onload function
+// in short, it consolidates all the logic we need on page load into a single function, 
+// so that we can keep onload logic within the individual modules for organization
+// and readability
+function addOnLoadEvent(f){
+	var prevOnLoad = window.onload;
+	if( typeof window.onload != 'function'){
+		window.onload = f;
+	}
+	else{
+		window.onload = function(){
+			f();
+			if(prevOnLoad){ // first function in, last function called. important for implementation.
+				prevOnLoad();
+			}
+		}
+	}
+
+};
