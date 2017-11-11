@@ -22,9 +22,63 @@ app.main = function(){
 
 	// loader is a sub module of main, also instantiated with an IIFE.
 	// it will be used to load JSON objects asynchronously, as well as manage onload functions.
-	var obj.loader = function(){
+	obj.loader = function(){
 
+		// this will eventually be app.main.loader
+		var obj = {};
 
+		// by the design of addOnLoadEvent, this will execute after every module has finished all its
+		// onload logic (that is, they should be more or less initialized, save for JSON requests)
+		function onOnLoadEventsComplete(){
+
+		}
+		window.onload = onOnLoadEventsComplete;
+		// adds the function f that is passed in to a massive window.onload function
+		// in short, it consolidates all the logic we need on page load into a single function, 
+		// so that we can keep onload logic within the individual modules for organization
+		// and readability
+		obj.addOnLoadEvent = function(f){
+			var prevOnLoad = window.onload;
+			if( typeof window.onload != 'function'){
+				window.onload = f;
+			}
+			else{
+				window.onload = function(){
+					f();
+					if(prevOnLoad){ // first function in, last function called. important for implementation.
+						prevOnLoad();
+					}
+				}
+			}
+
+		};
+
+		// this variable will be accessible only to functions inside of app.main.loader
+		// it tracks the number of json files that are currently being loaded asynchronously
+		// so we can tell when it is safe to proceed with game execution
+		var filesLoading = 0;
+
+		// loads a JSON file, and calls the callback function with the data in the JSON file once it has
+		// finished loading.
+		obj.loadJSON = function(filepath,callback){
+			filesLoading++;
+
+			var request = new XMLHttpRequest();
+			request.open('GET',filepath);
+			request.responseType = 'json';
+			request.send();
+			request.onload = onResponseReceived;
+			request.onerror = function(){console.log("error loading "+ filepath);};
+			
+
+			function onResponseReceived(){
+				callback(request.response);
+				filesLoading--;
+			}
+
+		};
+
+		return obj;
 	}();
 
 
