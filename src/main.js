@@ -19,6 +19,15 @@ app.main = function(){
 
 	// this obj will eventually be app.main
 	var obj = {};
+	
+	var playerLocation = {row: 0, col: 0};
+	
+	obj.map = [[1, 0, 1, 1],
+		       [1, 1, 1, 0],
+			   [0, 0, 1, 0]];
+	
+	//Buttons
+	obj.directionButtons = {};
 
 	// loader is a sub module of main, also instantiated with an IIFE.
 	// it will be used to load JSON objects asynchronously
@@ -54,11 +63,100 @@ app.main = function(){
 
 		return obj;
 	}();
-
-	obj.update = function(){
-		app.renderer.draw();
+	
+	obj.init = function(){
+		//Initialization code goes here?
+		
+		var canvas = document.querySelector("canvas");
+		var ctx = canvas.getContext('2d');
+		
+		canvas.onmousemove = function(e){
+			var mouse = getMouse(e);
+			callFunctionMovementButtons.call(app.main, "checkHover", mouse);
+		}
+		
+		canvas.onmousedown = function(e){
+			var mouse = getMouse(e);
+			callFunctionMovementButtons.call(app.main, "checkClick", mouse);
+		}
+		
+		app.main.directionButtons = {
+			left: new Button(ctx, canvas.width / 2 - 250, canvas.height / 2 - 50, 200, 100, "grey", "green", "red", "white", "Go Left",
+			function(){movePlayer("left")}),
+			right: new Button(ctx, canvas.width / 2 + 100, canvas.height / 2 - 50, 200, 100, "grey", "green", "red", "white", "Go Right",
+			function(){movePlayer("right")}),
+			up: new Button(ctx, canvas.width / 2 - 100, canvas.height / 2 - 200, 200, 100, "grey", "green", "red", "white", "Go Up",
+			function(){movePlayer("up")}),
+			down: new Button(ctx, canvas.width / 2 - 100, canvas.height / 2 + 100, 200, 100, "grey", "green", "red", "white", "Go Down",
+			function(){movePlayer("down")})
+		}
 	}
 
+	obj.update = function(){
+		requestAnimationFrame(app.main.update.bind(app.main));
+		app.renderer.draw();
+		callFunctionMovementButtons.call(this, "drawAndUpdate");
+	}
+	
+	function callFunctionMovementButtons(f, arg){
+		var movement = checkMovement();
+		if(movement[0]) this.directionButtons.down[f](arg);
+		if(movement[1]) this.directionButtons.up[f](arg);
+		if(movement[2]) this.directionButtons.right[f](arg);
+		if(movement[3]) this.directionButtons.left[f](arg);
+	}
+	
+	function checkMovement(){
+		var movement = [];
+		var map = app.main.map;
+		
+		//Down
+		if(playerLocation.row < map.length - 1 && map[playerLocation.row + 1][playerLocation.col] == 1){
+			movement.push(1);
+		} else {
+			movement.push(0);
+		}
+		
+		//Up
+		if(playerLocation.row > 0 && map[playerLocation.row - 1][playerLocation.col] == 1){
+			movement.push(1);
+		} else {
+			movement.push(0);
+		}
+		
+		//Right
+		if(playerLocation.col < map[0].length - 1 && map[playerLocation.row][playerLocation.col + 1] == 1){
+			movement.push(1);
+		} else {
+			movement.push(0);
+		}
+		
+		//Left
+		if(playerLocation.col > 0 && map[playerLocation.row][playerLocation.col - 1] == 1){
+			movement.push(1);
+		} else {
+			movement.push(0);
+		}
+		
+		return movement;
+	}
+	
+	function movePlayer(direction){
+		switch(direction){
+		case "down":
+			playerLocation.row++;
+			break;
+		case "up":
+			playerLocation.row--;
+			break;
+		case "right":
+			playerLocation.col++;
+			break;
+		case "left":
+			playerLocation.col--;
+			break;
+		}
+	}
 
 	return obj;
 }();
@@ -67,6 +165,8 @@ app.main = function(){
 // by the design of addOnLoadEvent, this will execute after every module has finished all its
 // onload logic (that is, they should be more or less initialized, save for JSON requests)
 function onOnLoadEventsComplete(){
+
+	app.main.init();
 
 	// we need the bind here because requestAnimationFrame destroys the scope of update
 	// when it uses it as a callback
@@ -94,3 +194,74 @@ function addOnLoadEvent(f){
 	}
 
 };
+
+//This is going here for now, because I'm not sure where else to put it
+
+//Get the position of the mouse relative to the display canvas
+function getMouse(e){
+	var canvas = document.querySelector("canvas");
+	var rect = canvas.getBoundingClientRect();
+	var point = {
+		x: (e.clientX - rect.left),
+		y: (e.clientY - rect.top)
+	}
+	return point;
+}
+
+//Create a new button
+function Button(ctx, x, y, width, height, color, hoverColor, selectColor, textColor, text, callback){
+	//Every button has location data, color data, text data, and an onclick callback
+	this.ctx = ctx;
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.color = color;
+	this.hoverColor = hoverColor;
+	this.selectColor = selectColor;
+	this.textColor = textColor;
+	this.text = text;
+	this.callback = callback;
+	this.state = "normal";
+	
+	//Update the button's state
+	this.setState = function(state){
+		this.state = state;
+	}
+	
+	//Draw and update the button according to its state
+	this.drawAndUpdate = function(){
+		this.ctx.save();
+		switch(this.state){
+			case "normal":
+				this.ctx.fillStyle = this.color;
+				break;
+			case "hover":
+				this.ctx.fillStyle = this.hoverColor;
+				break;
+			case "select":
+				this.ctx.fillStyle = this.selectColor;
+				break;
+		}
+		this.ctx.fillRect(this.x, this.y, this.width, this.height);
+		this.ctx.textBaseline = "middle";
+		this.ctx.textAlign = "center";
+		this.ctx.font = "30pt verdana";
+		this.ctx.fillStyle = this.textColor;
+		this.ctx.fillText(this.text, this.x + this.width / 2, this.y + this.height / 2);
+		this.ctx.restore();
+	}
+	
+	//Check to see if the mouse is hovering over the button
+	this.checkHover = function(mouse){
+		this.state = mouse.x > this.x && mouse.x < this.x + this.width && mouse.y > this.y && mouse.y < this.y + this.height ? "hover" : "normal";
+	}
+	
+	//Check to see if the mouse has clicked the button
+	this.checkClick = function(mouse){
+		this.state = mouse.x > this.x && mouse.x < this.x + this.width && mouse.y > this.y && mouse.y < this.y + this.height ? "select" : "normal";
+		if(this.state == "select"){
+			this.callback();
+		}
+	}
+}
