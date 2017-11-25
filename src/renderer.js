@@ -32,6 +32,18 @@ app.renderer = function(){
 	obj.draw = function(){
 		ctx.clearRect(0,0,canvas.width, canvas.height);
 		ctx.drawImage(VERYIMPORTANTDEBUGIMAGE, 0, 0);
+        
+        // if showing a sprite
+        //if (in battle){
+            var enemySprite = app.sprites.getCurrentSprite();
+            //console.log(enemySprite);
+            for (var i = 0; i < enemySprite.length; i++){
+                ctx.drawImage(enemySprite[i], 0, 0, 682, 702);
+                //console.log(i);
+            }
+        //}
+        
+        
 	};
 
 

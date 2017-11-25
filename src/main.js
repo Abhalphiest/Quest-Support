@@ -25,6 +25,8 @@ app.main = function(){
 	obj.map = [[1, 0, 1, 1],
 		       [1, 1, 1, 0],
 			   [0, 0, 1, 0]];
+    
+    obj.enemy = {type: 'wizlock', trait1: 'timid', trait2: 'talkative'};
 	
 	//Buttons
 	obj.directionButtons = {};
@@ -73,12 +75,12 @@ app.main = function(){
 		canvas.onmousemove = function(e){
 			var mouse = getMouse(e);
 			callFunctionMovementButtons.call(app.main, "checkHover", mouse);
-		}
+		};
 		
 		canvas.onmousedown = function(e){
 			var mouse = getMouse(e);
 			callFunctionMovementButtons.call(app.main, "checkClick", mouse);
-		}
+		};
 		
 		app.main.directionButtons = {
 			left: new Button(ctx, canvas.width / 2 - 250, canvas.height / 2 - 50, 200, 100, "grey", "green", "red", "white", "Go Left",
@@ -89,14 +91,18 @@ app.main = function(){
 			function(){movePlayer("up")}),
 			down: new Button(ctx, canvas.width / 2 - 100, canvas.height / 2 + 100, 200, 100, "grey", "green", "red", "white", "Go Down",
 			function(){movePlayer("down")})
-		}
+		};
+        
+        
+        app.main.enemy = {type: 'wizlock', trait1: 'foppish', trait2: 'sashaying'};
+        app.sprites.setSprite(obj.enemy);
 	}
 
 	obj.update = function(){
 		requestAnimationFrame(app.main.update.bind(app.main));
 		app.renderer.draw();
 		callFunctionMovementButtons.call(this, "drawAndUpdate");
-	}
+	};
 	
 	function callFunctionMovementButtons(f, arg){
 		var movement = checkMovement();
