@@ -22,8 +22,8 @@ app.main = function(){
 	
 	var playerLocation = {row: 0, col: 0};
 	
-	obj.map = [[1, 0, 1, 1],
-		       [1, 1, 1, 0],
+	obj.map = [[1, 0, 2, 1],
+		       [2, 1, 1, 0],
 			   [0, 0, 1, 0]];
     
     obj.enemy = {type: 'wizlock', trait1: 'timid', trait2: 'talkative'};
@@ -96,6 +96,13 @@ app.main = function(){
         
         app.main.enemy = {type: 'wizlock', trait1: 'foppish', trait2: 'sashaying'};
         app.sprites.setSprite(obj.enemy);
+
+        app.main.inEncounter = false;
+        app.main.gameStates = {
+            ENCOUNTER : 0,
+            TRAVELING : 1
+        }
+        app.main.currentState = app.main.gameStates.TRAVELING;
 	}
 
 	obj.update = function(){
@@ -117,28 +124,28 @@ app.main = function(){
 		var map = app.main.map;
 		
 		//Down
-		if(playerLocation.row < map.length - 1 && map[playerLocation.row + 1][playerLocation.col] == 1){
+		if(playerLocation.row < map.length - 1 && map[playerLocation.row + 1][playerLocation.col] != 0){
 			movement.push(1);
 		} else {
 			movement.push(0);
 		}
 		
 		//Up
-		if(playerLocation.row > 0 && map[playerLocation.row - 1][playerLocation.col] == 1){
+		if(playerLocation.row > 0 && map[playerLocation.row - 1][playerLocation.col] != 0){
 			movement.push(1);
 		} else {
 			movement.push(0);
 		}
 		
 		//Right
-		if(playerLocation.col < map[0].length - 1 && map[playerLocation.row][playerLocation.col + 1] == 1){
+		if(playerLocation.col < map[0].length - 1 && map[playerLocation.row][playerLocation.col + 1] != 0){
 			movement.push(1);
 		} else {
 			movement.push(0);
 		}
 		
 		//Left
-		if(playerLocation.col > 0 && map[playerLocation.row][playerLocation.col - 1] == 1){
+		if(playerLocation.col > 0 && map[playerLocation.row][playerLocation.col - 1] != 0){
 			movement.push(1);
 		} else {
 			movement.push(0);
@@ -150,7 +157,11 @@ app.main = function(){
 	function movePlayer(direction){
 		switch(direction){
 		case "down":
-			playerLocation.row++;
+                playerLocation.row++;
+                if (app.main.map[playerLocation.row][playerLocation.col] == 2) {
+                    console.dir("ENCOUNTER");
+                    app.main.currentState = app.main.gameStates.ENCOUNTER;
+                }
 			break;
 		case "up":
 			playerLocation.row--;
@@ -229,7 +240,6 @@ function Button(ctx, x, y, width, height, color, hoverColor, selectColor, textCo
 	this.text = text;
 	this.callback = callback;
 	this.state = "normal";
-	
 	//Update the button's state
 	this.setState = function(state){
 		this.state = state;
@@ -237,25 +247,33 @@ function Button(ctx, x, y, width, height, color, hoverColor, selectColor, textCo
 	
 	//Draw and update the button according to its state
 	this.drawAndUpdate = function(){
-		this.ctx.save();
-		switch(this.state){
-			case "normal":
-				this.ctx.fillStyle = this.color;
-				break;
-			case "hover":
-				this.ctx.fillStyle = this.hoverColor;
-				break;
-			case "select":
-				this.ctx.fillStyle = this.selectColor;
-				break;
-		}
-		this.ctx.fillRect(this.x, this.y, this.width, this.height);
-		this.ctx.textBaseline = "middle";
-		this.ctx.textAlign = "center";
-		this.ctx.font = "30pt verdana";
-		this.ctx.fillStyle = this.textColor;
-		this.ctx.fillText(this.text, this.x + this.width / 2, this.y + this.height / 2);
-		this.ctx.restore();
+        this.ctx.save();
+        switch (app.main.currentState) {
+            case 0:
+
+                break;
+
+            case 1:
+                switch (this.state) {
+                    case "normal":
+                        this.ctx.fillStyle = this.color;
+                        break;
+                    case "hover":
+                        this.ctx.fillStyle = this.hoverColor;
+                        break;
+                    case "select":
+                        this.ctx.fillStyle = this.selectColor;
+                        break;
+                }
+                this.ctx.fillRect(this.x, this.y, this.width, this.height);
+                this.ctx.textBaseline = "middle";
+                this.ctx.textAlign = "center";
+                this.ctx.font = "30pt verdana";
+                this.ctx.fillStyle = this.textColor;
+                this.ctx.fillText(this.text, this.x + this.width / 2, this.y + this.height / 2);
+                break;
+        }
+        this.ctx.restore();
 	}
 	
 	//Check to see if the mouse is hovering over the button

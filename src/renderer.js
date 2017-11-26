@@ -24,23 +24,33 @@ app.renderer = function(){
 	var canvas = undefined; // will be initialized onload (see addOnLoadEvent below)
 	var ctx = undefined;
 
-	var VERYIMPORTANTDEBUGIMAGE; // delete soon. very, very soon.
+	//var VERYIMPORTANTDEBUGIMAGE; // delete soon. very, very soon.
 
 
 
 	// the main renderer update
 	obj.draw = function(){
 		ctx.clearRect(0,0,canvas.width, canvas.height);
-		ctx.drawImage(VERYIMPORTANTDEBUGIMAGE, 0, 0);
+		//ctx.drawImage(VERYIMPORTANTDEBUGIMAGE, 0, 0);
         
         // if showing a sprite
         //if (in battle){
             var enemySprite = app.sprites.getCurrentSprite();
             //console.log(enemySprite);
-            for (var i = 0; i < enemySprite.length; i++){
-                ctx.drawImage(enemySprite[i], 0, 0, 682, 702);
-                //console.log(i);
+            switch (app.main.currentState) {
+                case 0:
+                    for (var i = 0; i < enemySprite.length; i++) {
+                        ctx.drawImage(enemySprite[i], (canvas.width * .5) - (enemySprite[i].width / 2.5 / 2), (canvas.height * .2) + (enemySprite[i].height / 2.5 / 2), enemySprite[i].width / 2.5, enemySprite[i].height / 2.5);
+                        //console.log(i);
+                    }
+                    break;
+
+                case 1:
+
+                    break;
+
             }
+            
         //}
         
         
@@ -63,8 +73,8 @@ app.renderer = function(){
 			canvas.height = window.innerHeight;
 		};
 
-		VERYIMPORTANTDEBUGIMAGE = new Image();
-		VERYIMPORTANTDEBUGIMAGE.src = "assets/feelincagey.jpg";
+		//VERYIMPORTANTDEBUGIMAGE = new Image();
+		//VERYIMPORTANTDEBUGIMAGE.src = "assets/feelincagey.jpg";
 
 	}.bind(obj)); // we need the .bind(this) here, because the scope of the function will be wiped out
 				  // when composed with other functions and added to an event listener 
