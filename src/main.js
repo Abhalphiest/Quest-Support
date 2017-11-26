@@ -22,7 +22,7 @@ app.main = function(){
 	
 	var playerLocation = {row: 0, col: 0};
 	
-	obj.map = [[1, 0, 2, 1],
+	obj.map = [[1, 0, 2, 4],
 		       [2, 1, 1, 0],
 			   [0, 0, 1, 0]];
     
@@ -74,12 +74,14 @@ app.main = function(){
 		
 		canvas.onmousemove = function(e){
 			var mouse = getMouse(e);
-			callFunctionMovementButtons.call(app.main, "checkHover", mouse);
+            callFunctionMovementButtons.call(app.main, "checkHover", mouse);
+            callFunctionEncounterButtons.call(app.main, "checkHover", mouse);
 		};
 		
 		canvas.onmousedown = function(e){
 			var mouse = getMouse(e);
-			callFunctionMovementButtons.call(app.main, "checkClick", mouse);
+            callFunctionMovementButtons.call(app.main, "checkClick", mouse);
+            callFunctionEncounterButtons.call(app.main, "checkClick", mouse);
 		};
 		
 		app.main.directionButtons = {
@@ -92,32 +94,81 @@ app.main = function(){
 			down: new Button(ctx, canvas.width / 2 - 100, canvas.height / 2 + 100, 200, 100, "grey", "green", "red", "white", "Go Down",
 			function(){movePlayer("down")})
 		};
-        
+        app.main.choiceButtons = {
+            cOne: new Button(ctx, (canvas.width / 8), (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "1",
+                function () { checkAnswer(app.main.choiceButtons.cOne.text); }),
+            cTwo: new Button(ctx, (canvas.width / 8) * 2, (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "2",
+                function () { checkAnswer(app.main.choiceButtons.cTwo.text);}),
+            cThree: new Button(ctx, (canvas.width / 8) * 3, (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "3",
+                function () { checkAnswer(app.main.choiceButtons.cThree.text);}),
+            cFour: new Button(ctx, (canvas.width / 8) * 4, (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "4",
+                function () { checkAnswer(app.main.choiceButtons.cFour.text);}),
+            cFive: new Button(ctx, (canvas.width / 8) * 5, (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "5",
+                function () { checkAnswer(app.main.choiceButtons.cFive.text);}),
+            cSix: new Button(ctx, (canvas.width / 8) * 6, (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "6",
+                function () { checkAnswer(app.main.choiceButtons.cSix.text);})
+        };
+        app.main.otherButtons = {
+            talk: new Button(ctx, canvas.width / 2 - 375, canvas.height - 100, 200, 50, "grey", "green", "red", "white", "Talk",
+                function () { changeEncounterText(app.main.otherButtons.talk.text); }),
+            inspect: new Button(ctx, canvas.width / 2 + 175, canvas.height - 100, 200, 50, "grey", "green", "red", "white", "Inspect",
+                function () { changeEncounterText(app.main.otherButtons.inspect.text);}),
+        };
         
         app.main.enemy = {type: 'wizlock', trait1: 'foppish', trait2: 'sashaying'};
         app.sprites.setSprite(obj.enemy);
 
-        app.main.inEncounter = false;
         app.main.gameStates = {
             ENCOUNTER : 0,
-            TRAVELING : 1
+            TRAVELING: 1,
+            ENDING: 2
         }
         app.main.currentState = app.main.gameStates.TRAVELING;
+        app.main.ctx = ctx;
+        app.main.encounterText = "STARTING ENCOUNTER TEXT";
 	}
 
 	obj.update = function(){
 		requestAnimationFrame(app.main.update.bind(app.main));
-		app.renderer.draw();
-		callFunctionMovementButtons.call(this, "drawAndUpdate");
+        app.renderer.draw();
+        if (app.main.currentState != app.main.gameStates.ENDING) {
+            if (app.main.currentState == app.main.gameStates.TRAVELING) {
+                callFunctionMovementButtons.call(this, "drawAndUpdate");
+            }
+            if (app.main.currentState == app.main.gameStates.ENCOUNTER) {
+                callFunctionEncounterButtons.call(this, "drawAndUpdate");
+            }
+        } else {
+            this.ctx.font = "20pt verdana";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText("End of the current floor", 500, 500);  
+        }
+        
 	};
 	
-	function callFunctionMovementButtons(f, arg){
-		var movement = checkMovement();
-		if(movement[0]) this.directionButtons.down[f](arg);
-		if(movement[1]) this.directionButtons.up[f](arg);
-		if(movement[2]) this.directionButtons.right[f](arg);
-		if(movement[3]) this.directionButtons.left[f](arg);
-	}
+    function callFunctionMovementButtons(f, arg) {
+            var movement = checkMovement();
+            if (movement[0]) this.directionButtons.down[f](arg);
+            if (movement[1]) this.directionButtons.up[f](arg);
+            if (movement[2]) this.directionButtons.right[f](arg);
+            if (movement[3]) this.directionButtons.left[f](arg);	
+    }
+
+    function callFunctionEncounterButtons(f, arg) {
+        
+            app.main.choiceButtons.cOne[f](arg);
+            //app.main.choiceButtons.cOne.text = "7";
+            app.main.choiceButtons.cTwo[f](arg);
+            app.main.choiceButtons.cThree[f](arg);
+            app.main.choiceButtons.cFour[f](arg);
+            app.main.choiceButtons.cFive[f](arg);
+            app.main.choiceButtons.cSix[f](arg);
+            app.main.otherButtons.talk[f](arg);
+            app.main.otherButtons.inspect[f](arg);
+            this.ctx.font = "20pt verdana";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(app.main.encounterText, 500, 100);   
+    }
 	
 	function checkMovement(){
 		var movement = [];
@@ -157,11 +208,7 @@ app.main = function(){
 	function movePlayer(direction){
 		switch(direction){
 		case "down":
-                playerLocation.row++;
-                if (app.main.map[playerLocation.row][playerLocation.col] == 2) {
-                    console.dir("ENCOUNTER");
-                    app.main.currentState = app.main.gameStates.ENCOUNTER;
-                }
+            playerLocation.row++;               
 			break;
 		case "up":
 			playerLocation.row--;
@@ -172,8 +219,44 @@ app.main = function(){
 		case "left":
 			playerLocation.col--;
 			break;
-		}
+        }
+        if (app.main.map[playerLocation.row][playerLocation.col] == 2) {
+            app.main.currentState = app.main.gameStates.ENCOUNTER;
+        }
+        if (app.main.map[playerLocation.row][playerLocation.col] == 4) {
+            app.main.currentState = app.main.gameStates.ENDING;
+        }
 	}
+
+
+    //Will randomize the answers of the buttons
+    //
+    //
+    function randomizeAnswers() {
+
+    }
+    //Change the encounterText based off of talk or inspect button push
+
+    function changeEncounterText(text) {
+        if (text == "Talk") {
+            console.dir("Talk");
+        }
+        else if (text == "Inspect") {
+            console.dir("Inspect");
+        }
+    }
+
+    //Check if answer is correct
+    //
+    function checkAnswer(text) {
+        console.dir(text);
+        //Arbitrary correct answer
+        if (text == "6") {
+            app.main.map[playerLocation.row][playerLocation.col] = 3;
+            app.main.currentState = app.main.gameStates.TRAVELING;
+        }
+    }
+
 
 	return obj;
 }();
@@ -212,6 +295,10 @@ function addOnLoadEvent(f){
 
 };
 
+
+
+
+
 //This is going here for now, because I'm not sure where else to put it
 
 //Get the position of the mouse relative to the display canvas
@@ -248,32 +335,23 @@ function Button(ctx, x, y, width, height, color, hoverColor, selectColor, textCo
 	//Draw and update the button according to its state
 	this.drawAndUpdate = function(){
         this.ctx.save();
-        switch (app.main.currentState) {
-            case 0:
-
+        switch (this.state) {
+            case "normal":
+                this.ctx.fillStyle = this.color;
                 break;
-
-            case 1:
-                switch (this.state) {
-                    case "normal":
-                        this.ctx.fillStyle = this.color;
-                        break;
-                    case "hover":
-                        this.ctx.fillStyle = this.hoverColor;
-                        break;
-                    case "select":
-                        this.ctx.fillStyle = this.selectColor;
-                        break;
-                }
-                this.ctx.fillRect(this.x, this.y, this.width, this.height);
-                this.ctx.textBaseline = "middle";
-                this.ctx.textAlign = "center";
-                this.ctx.font = "30pt verdana";
-                this.ctx.fillStyle = this.textColor;
-                this.ctx.fillText(this.text, this.x + this.width / 2, this.y + this.height / 2);
+            case "hover":
+                this.ctx.fillStyle = this.hoverColor;
+                break;
+            case "select":
+                this.ctx.fillStyle = this.selectColor;
                 break;
         }
-        this.ctx.restore();
+        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.ctx.textBaseline = "middle";
+        this.ctx.textAlign = "center";
+        this.ctx.font = "30pt verdana";
+        this.ctx.fillStyle = this.textColor;
+        this.ctx.fillText(this.text, this.x + this.width / 2, this.y + this.height / 2);
 	}
 	
 	//Check to see if the mouse is hovering over the button
@@ -287,5 +365,7 @@ function Button(ctx, x, y, width, height, color, hoverColor, selectColor, textCo
 		if(this.state == "select"){
 			this.callback();
 		}
-	}
+    }
+
+ 
 }
