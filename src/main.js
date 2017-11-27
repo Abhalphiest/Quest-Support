@@ -22,8 +22,8 @@ app.main = function(){
 	
 	var playerLocation = {row: 0, col: 0};
 	
-	obj.map = [[1, 0, 2, 4],
-		       [2, 1, 1, 0],
+	obj.map = [[1, 0, 6, 4],
+		       [5, 1, 1, 0],
 			   [0, 0, 1, 0]];
     
     obj.enemy = {type: 'wizlock', trait1: 'timid', trait2: 'talkative'};
@@ -115,7 +115,8 @@ app.main = function(){
                 function () { changeEncounterText(app.main.otherButtons.inspect.text);}),
         };
         
-        app.main.enemy = {type: 'wizlock', trait1: 'foppish', trait2: 'sashaying'};
+        app.main.enemy = { type: 'wizlock', trait1: 'foppish', trait2: 'sashaying' };
+        app.main.enemy2 = { type: 'slime', trait1: 'grape', trait2: 'aggressive' };
         app.sprites.setSprite(obj.enemy);
 
         app.main.gameStates = {
@@ -220,8 +221,27 @@ app.main = function(){
 			playerLocation.col--;
 			break;
         }
-        if (app.main.map[playerLocation.row][playerLocation.col] == 2) {
+        if (app.main.map[playerLocation.row][playerLocation.col] >= 5) {
             app.main.currentState = app.main.gameStates.ENCOUNTER;
+            if (app.main.map[playerLocation.row][playerLocation.col] == 5) {
+                app.sprites.setSprite(obj.enemy);
+                app.main.choiceButtons.cOne.text = "talk";
+                app.main.choiceButtons.cTwo.text = "admire";
+                app.main.choiceButtons.cThree.text = "dance";
+                app.main.choiceButtons.cFour.text = "humor";
+                app.main.choiceButtons.cFive.text = "bribe";
+                app.main.choiceButtons.cSix.text = "ignore";
+                
+                
+            } else if (app.main.map[playerLocation.row][playerLocation.col] == 6){
+                app.sprites.setSprite(obj.enemy2);
+                app.main.choiceButtons.cOne.text = "help";
+                app.main.choiceButtons.cTwo.text = "admire";
+                app.main.choiceButtons.cThree.text = "torch";
+                app.main.choiceButtons.cFour.text = "run";
+                app.main.choiceButtons.cFive.text = "talk";
+                app.main.choiceButtons.cSix.text = "eat";
+            }
         }
         if (app.main.map[playerLocation.row][playerLocation.col] == 4) {
             app.main.currentState = app.main.gameStates.ENDING;
@@ -251,10 +271,17 @@ app.main = function(){
     function checkAnswer(text) {
         console.dir(text);
         //Arbitrary correct answer
-        if (text == "6") {
-            app.main.map[playerLocation.row][playerLocation.col] = 3;
-            app.main.currentState = app.main.gameStates.TRAVELING;
-        }
+        if (app.main.map[playerLocation.row][playerLocation.col] == 5) {
+            if (text == "admire") {
+                app.main.map[playerLocation.row][playerLocation.col] = 3;
+                app.main.currentState = app.main.gameStates.TRAVELING;
+            }
+        } else if (app.main.map[playerLocation.row][playerLocation.col] == 6) {
+            if (text == "run") {
+                app.main.map[playerLocation.row][playerLocation.col] = 3;
+                app.main.currentState = app.main.gameStates.TRAVELING;
+            }
+        }      
     }
 
 
