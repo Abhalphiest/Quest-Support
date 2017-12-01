@@ -49,6 +49,20 @@ app.renderer = function(){
 
                     break;
 
+                case 2:
+
+                	break;
+
+                case 3: // the start screen 
+                	ctx.save();
+                	ctx.font = "30px Special Elite";
+                	ctx.fillText("Welcome to Quest Support!", 10, 50);
+                	ctx.fillText("You are the adventurer. This screen is for your eyes only, and should not be shown to the guide.", 10, 100);
+                	ctx.fillText("Do not look at the manual at any time while playing!", 10, 150);
+                	ctx.fillText("(Click Anywhere to Continue)", 10, 200);
+                	ctx.restore();
+                	break;
+
             }
             
         //}

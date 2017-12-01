@@ -71,6 +71,7 @@ app.main = function(){
 		
 		var canvas = document.querySelector("canvas");
 		var ctx = canvas.getContext('2d');
+
 		
 		canvas.onmousemove = function(e){
 			var mouse = getMouse(e);
@@ -80,6 +81,10 @@ app.main = function(){
 		
 		canvas.onmousedown = function(e){
 			var mouse = getMouse(e);
+			if (app.main.currentState == app.main.gameStates.INSTRUCTIONS) {
+                app.main.currentState = app.main.gameStates.TRAVELING;
+                return;
+            }
             callFunctionMovementButtons.call(app.main, "checkClick", mouse);
             callFunctionEncounterButtons.call(app.main, "checkClick", mouse);
 		};
@@ -122,9 +127,10 @@ app.main = function(){
         app.main.gameStates = {
             ENCOUNTER : 0,
             TRAVELING: 1,
-            ENDING: 2
+            ENDING: 2,
+            INSTRUCTIONS: 3,
         }
-        app.main.currentState = app.main.gameStates.TRAVELING;
+        app.main.currentState = app.main.gameStates.INSTRUCTIONS;
         app.main.ctx = ctx;
         app.main.encounterText = "STARTING ENCOUNTER TEXT";
 	}
