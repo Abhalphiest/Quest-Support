@@ -151,6 +151,15 @@ app.main = function(){
         app.main.talkReferenceList["hungry"] = "Nom nom nom, this is delicious! I can't believe I'm finally eating again after 30 years. What luck that I would happen upon some freshly made human food today!";
         app.main.talkReferenceList["crazy"] = "Who are you? What now? An adventurer? No no you're a monster! Yes yes, that's right. All I need to do is imagine you aren't here and you'll go away!";
         app.main.talkReferenceList["melodic"] = "La la la! Do re mi fa so la ti do! Ahem, dear adventurer, won't you listen to my song? I've been working on it for so long you see. There was no one down here to listen to it, but now you're here!";
+        app.main.talkReferenceList["grape"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["strawberry"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["lime"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["cherry"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["stagnant"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["jiggling"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["sagacious"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["aggressive"] = "What are you doing, it's a slime";
+
 
         app.main.inspectReferenceList = {};
         app.main.inspectReferenceList["timid"] = "*The enemy is huddling in a corner, appearing to be frightened of you*";
@@ -178,7 +187,14 @@ app.main = function(){
         app.main.inspectReferenceList["hungry"] = "*As you approach this enemy you begin to hear a constant low rumbling that seems to be coming from their stomach. It's a little disturbing, but also very relatable.*";
         app.main.inspectReferenceList["crazy"] = "*You can't be sure just by looking, but you get the feeling that this enemy may be missing a marble or two.*";
         app.main.inspectReferenceList["melodic"] = "*This enemy has quite a beautiful voice. If you weren't on an important adventure, you might consider listening to the creature sing.*";
-
+        app.main.inspectReferenceList["grape"] = "*You lick it*";
+        app.main.inspectReferenceList["strawberry"] = "*You lick it*";
+        app.main.inspectReferenceList["lime"] = "*You lick it*";
+        app.main.inspectReferenceList["cherry"] = "*You lick it*";
+        app.main.inspectReferenceList["stagnant"] = "*Reeks like a swamp*";
+        app.main.inspectReferenceList["jiggling"] = "*The slime is constantly moving*";
+        app.main.inspectReferenceList["sagacious"] = "*Looks as if it mught know more than you do*";
+        app.main.inspectReferenceList["aggressive"] = "*Contains the remains of past foes*";
 
         app.main.gameStates = {
             ENCOUNTER : 0,
