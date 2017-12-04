@@ -24,10 +24,61 @@ app.main = function(){
 	
 	obj.map = [[5, 0, 6, 4],
 		       [1, 1, 1, 0],
-			   [0, 0, 1, 0]];
+               [0, 0, 1, 0]];
+
+    // warlock reference sheet, [row, column]
     
-    obj.enemy = {type: 'wizlock', trait1: 'timid', trait2: 'talkative'};
-	
+    obj.enemy = { type: 'wizlock', trait1: 'timid', trait2: 'talkative' };
+
+    obj.warlockAdjective1 = ["Dastardly", "Foppish", "Grumpy", "Sassy"];
+
+    obj.warlockAdjective2 = ["Sashaying", "Timid", "Mesmerizing", "Evangelizing"];
+
+    obj.warlockActionReference = [["Rebuke", "Slap", "Look Away", "Pray"],
+                                  ["Admire", "Throw Dirt", "Ignore", "Bribe"],
+                                  ["Ignore", "Hug", "Slap", "Humore"],
+                                  ["Dance", "Humor", "Talk", "Rebuke"]];
+
+    // wizard reference sheet, [row, column]
+
+    obj.wizardAdjective1 = ["Timid", "Foppish", "Determined", "Sassy"];
+
+    obj.wizardAdjective2 = ["Feisty", "Talkative", "Happy", "Caring"];
+
+    obj.wizardActionReference = [["Rebuke", "Humor", "Ignore", "Sit Down"],
+                                  ["Trip", "Bribe", "Admire", "Talk"],
+                                  ["Elude", "Talk", "Engage", "Acquiesce"],
+                                  ["Match Wits", "Engage", "High-Five", "Venerate"]];
+
+    //unfinished
+    
+    //obj.ghoulAdjective1 = ["Timid", "Foppish", "Determined", "Sassy"];
+    //
+    //obj.ghoulAdjective2 = ["Feisty", "Talkative", "Happy", "Caring"];
+    //
+    //obj.ghoulActionReference = [["Rebuke", "Humor", "Ignore", "Sit Down"],
+    //                              ["Trip", "Bribe", "Admire", "Talk"],
+    //                              ["Elude", "Talk", "Engage", "Acquiesce"],
+    //                              ["Match Wits", "Engage", "High-Five", "Venerate"]];
+    //
+    //obj.wraithAdjective1 = ["Timid", "Foppish", "Determined", "Sassy"];
+    //
+    //obj.wraithAdjective2 = ["Feisty", "Talkative", "Happy", "Caring"];
+    //
+    //obj.wraithActionReference = [["Rebuke", "Humor", "Ignore", "Sit Down"],
+    //                              ["Trip", "Bribe", "Admire", "Talk"],
+    //                              ["Elude", "Talk", "Engage", "Acquiesce"],
+    //                              ["Match Wits", "Engage", "High-Five", "Venerate"]];
+    //
+    //obj.slimeAdjective1 = ["Timid", "Foppish", "Determined", "Sassy"];
+    //
+    //obj.slimeAdjective2 = ["Feisty", "Talkative", "Happy", "Caring"];
+    //
+    //obj.slimeActionReference = [["Rebuke", "Humor", "Ignore", "Sit Down"],
+    //                              ["Trip", "Bribe", "Admire", "Talk"],
+    //                              ["Elude", "Talk", "Engage", "Acquiesce"],
+    //                              ["Match Wits", "Engage", "High-Five", "Venerate"]];
+
 	//Buttons
 	obj.directionButtons = {};
 
