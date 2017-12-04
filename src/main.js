@@ -171,11 +171,10 @@ app.main = function(){
                 function () { changeEncounterText(app.main.otherButtons.inspect.text); }),
         };
 
-        app.main.enemy = { type: 'wizlock', trait1: 'foppish', trait2: 'sashaying' };
+        app.main.enemy = { type: 'wizlock', trait1: 'grumpy', trait2: 'mesmerizing' };
         app.main.enemy2 = { type: 'slime', trait1: 'grape', trait2: 'aggressive' };
         app.sprites.setSprite(obj.enemy);
-        //console.dir(app.main.enemy.trait1);
-
+      
         app.main.talkReferenceList = {};
         app.main.talkReferenceList["foppish"] = "Ugh, please take care not to get your filthy adventuring grime on my new outfit. It's woven from the finest silk, so I implore you to be cautious";
         app.main.talkReferenceList["timid"] = "Uh... um... hey there. Oh uh - I mean you, you better be scared! Darn that wasn't as intimidating as I wanted it to be... um...";
@@ -222,7 +221,7 @@ app.main = function(){
         app.main.inspectReferenceList["grumpy"] = "*As soon as you walk up to them, they cross their arms, look away from you and utter a grunting noise*";
         app.main.inspectReferenceList["dastardly"] = "*You feel a great force of evil emanating from them*";
         app.main.inspectReferenceList["sashaying"] = "*Sways hips from side-to-side*";
-        app.main.inspectReferenceList["mesmerizing"] = "*You find your attention inexorably drawn to X*";
+        app.main.inspectReferenceList["mesmerizing"] = "*You find your attention inexorably drawn to them*";
         app.main.inspectReferenceList["evangelizing"] = "*The enemy is holding out a pamphlet as if expecting you to take one*";
         app.main.inspectReferenceList["determined"] = "*The look they're giving you pierces right through your heavy armor to your very soul*";
         app.main.inspectReferenceList["caring"] = "*This enemy has such a nice demeanor they could - and might just be - your mother in disguise*";
@@ -253,36 +252,51 @@ app.main = function(){
             ENDING: 2,
             INSTRUCTIONS: 3,
         }
+        app.main.turnsRemaining = 10;
         app.main.currentState = app.main.gameStates.INSTRUCTIONS;
         app.main.currentEnemy = app.main.enemy;
         app.main.ctx = ctx;
         app.main.encounterText = "STARTING ENCOUNTER TEXT";
+        
 	}
 
 	obj.update = function(){
 		requestAnimationFrame(app.main.update.bind(app.main));
         app.renderer.draw();
         if (app.main.currentState != app.main.gameStates.ENDING) {
+            
             if (app.main.currentState == app.main.gameStates.TRAVELING) {
                 callFunctionMovementButtons.call(this, "drawAndUpdate");
+                //this.ctx.fillText(app.main.turnsRemaining, 100, 75);
             }
             if (app.main.currentState == app.main.gameStates.ENCOUNTER) {
                 callFunctionEncounterButtons.call(this, "drawAndUpdate");
+                //this.ctx.fillText(app.main.turnsRemaining, 100, 75);
             }
         } else {
             this.ctx.font = "20pt verdana";
             this.ctx.fillStyle = "black";
             this.ctx.fillText("End of the current floor", 500, 500);  
         }
-        
 	};
 	
     function callFunctionMovementButtons(f, arg) {
             var movement = checkMovement();
-            if (movement[0]) this.directionButtons.down[f](arg);
-            if (movement[1]) this.directionButtons.up[f](arg);
-            if (movement[2]) this.directionButtons.right[f](arg);
-            if (movement[3]) this.directionButtons.left[f](arg);	
+            if (movement[0]) {
+                this.directionButtons.down[f](arg);
+            }
+            if (movement[1]) {
+                this.directionButtons.up[f](arg)
+            };
+            if (movement[2]) {
+                this.directionButtons.right[f](arg)
+            };
+            if (movement[3]) {
+                this.directionButtons.left[f](arg)
+            };
+            this.ctx.font = "20pt verdana";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText("Turns Remaining: " + app.main.turnsRemaining, 200, 75);
     }
 
     function callFunctionEncounterButtons(f, arg) {
@@ -298,8 +312,10 @@ app.main = function(){
             app.main.otherButtons.inspect[f](arg);
             this.ctx.font = "20pt verdana";
             this.ctx.fillStyle = "black";
+            //this.ctx.textAlign = "left";
             //this.ctx.fillText(app.main.encounterText, 500, 100);
             wrapText(this.ctx, app.main.encounterText, 950, 75, 1000, 30);
+            this.ctx.fillText("Turns Remaining: " +app.main.turnsRemaining, 200, 75);
     }
 	
 	function checkMovement(){
@@ -333,7 +349,7 @@ app.main = function(){
 		} else {
 			movement.push(0);
 		}
-		
+        
 		return movement;
 	}
 	
@@ -361,7 +377,7 @@ app.main = function(){
                 app.main.choiceButtons.cOne.text = "talk";
                 app.main.choiceButtons.cTwo.text = "admire";
                 app.main.choiceButtons.cThree.text = "dance";
-                app.main.choiceButtons.cFour.text = "humor";
+                app.main.choiceButtons.cFour.text = "slap";
                 app.main.choiceButtons.cFive.text = "bribe";
                 app.main.choiceButtons.cSix.text = "ignore";
                 
@@ -390,8 +406,8 @@ app.main = function(){
     function randomizeAnswers() {
 
     }
-    //Change the encounterText based off of talk or inspect button push
 
+    //Change the encounterText based off of talk or inspect button push
     function changeEncounterText(text) {
         if (text == "Talk") {
             //console.dir(app.main.currentEnemy.trait1);
@@ -406,10 +422,10 @@ app.main = function(){
     //Check if answer is correct
     //
     function checkAnswer(text) {
-        console.dir(text);
+        //console.dir(text);
         //Arbitrary correct answer
         if (app.main.map[playerLocation.row][playerLocation.col] == 5) {
-            if (text == "admire") {
+            if (text == "slap") {
                 app.main.map[playerLocation.row][playerLocation.col] = 3;
                 app.main.currentState = app.main.gameStates.TRAVELING;
             }
@@ -418,10 +434,12 @@ app.main = function(){
                 app.main.map[playerLocation.row][playerLocation.col] = 3;
                 app.main.currentState = app.main.gameStates.TRAVELING;
             }
-        }      
+        }
+       // decreaseTurn();
     }
 
-
+    
+    
 	return obj;
 }();
 
@@ -526,7 +544,8 @@ function Button(ctx, x, y, width, height, color, hoverColor, selectColor, textCo
 	//Check to see if the mouse has clicked the button
 	this.checkClick = function(mouse){
 		this.state = mouse.x > this.x && mouse.x < this.x + this.width && mouse.y > this.y && mouse.y < this.y + this.height ? "select" : "normal";
-		if(this.state == "select"){
+        if (this.state == "select") {
+            decreaseTurn();
 			this.callback();
 		}
     }
@@ -552,4 +571,9 @@ function wrapText(context, text, x, y, maxWidth, lineHeight) {
         }
     }
     context.fillText(line, x, y);
+}
+
+function decreaseTurn() {
+    app.main.turnsRemaining--;
+    console.dir(app.main.turnsRemaining);
 }
