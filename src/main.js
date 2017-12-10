@@ -30,25 +30,25 @@ app.main = function(){
     
     obj.enemy = { type: 'wizlock', trait1: 'timid', trait2: 'talkative' };
 
-    obj.warlockAdjective1 = ["Dastardly", "Foppish", "Grumpy", "Sassy"];
+    obj.warlockAdjective1 = ["dastardly", "foppish", "grumpy", "sassy"];
 
-    obj.warlockAdjective2 = ["Sashaying", "Timid", "Mesmerizing", "Evangelizing"];
+    obj.warlockAdjective2 = ["sashaying", "timid", "mesmerizing", "evangelizing"];
 
-    obj.warlockActionReference = [["Rebuke", "Slap", "Look Away", "Pray"],
-                                  ["Admire", "Throw Dirt", "Ignore", "Bribe"],
-                                  ["Ignore", "Hug", "Slap", "Humore"],
-                                  ["Dance", "Humor", "Talk", "Rebuke"]];
+    obj.warlockActionReference = [["rebuke", "slap", "look away", "pray"],
+                                  ["admire", "throw dirt", "ignore", "bribe"],
+                                  ["ignore", "hug", "slap", "humor"],
+                                  ["dance", "humor", "talk", "rebuke"]];
 
     // wizard reference sheet, [row, column]
 
-    obj.wizardAdjective1 = ["Timid", "Foppish", "Determined", "Sassy"];
+    obj.wizardAdjective1 = ["timid", "foppish", "determined", "sassy"];
 
-    obj.wizardAdjective2 = ["Feisty", "Talkative", "Happy", "Caring"];
+    obj.wizardAdjective2 = ["feisty", "talkative", "happy", "caring"];
 
-    obj.wizardActionReference = [["Rebuke", "Humor", "Ignore", "Sit Down"],
-                                  ["Trip", "Bribe", "Admire", "Talk"],
-                                  ["Elude", "Talk", "Engage", "Acquiesce"],
-                                  ["Match Wits", "Engage", "High-Five", "Venerate"]];
+    obj.wizardActionReference = [["rebuke", "humor", "ignore", "sit down"],
+                                  ["trip", "bribe", "admire", "talk"],
+                                  ["elude", "talk", "engage", "acquiesce"],
+                                  ["match wits", "engage", "high-five", "venerate"]];
 
     //unfinished
     
@@ -171,8 +171,9 @@ app.main = function(){
                 function () { changeEncounterText(app.main.otherButtons.inspect.text); }),
         };
 
-        app.main.enemy = { type: 'wizlock', trait1: 'grumpy', trait2: 'mesmerizing' };
-        app.main.enemy2 = { type: 'slime', trait1: 'grape', trait2: 'aggressive' };
+        app.main.enemy = randomWizard();
+        console.dir(app.main.enemy);
+        app.main.enemy2 = { type: 'slime', trait1: 'grape', trait2: 'aggressive', correct: 'run' };
         app.sprites.setSprite(obj.enemy);
       
         app.main.talkReferenceList = {};
@@ -374,12 +375,7 @@ app.main = function(){
                 app.main.encounterText = "You have encountered a random " + obj.enemy.type;
                 app.main.currentEnemy = obj.enemy;
                 app.sprites.setSprite(obj.enemy);
-                app.main.choiceButtons.cOne.text = "talk";
-                app.main.choiceButtons.cTwo.text = "admire";
-                app.main.choiceButtons.cThree.text = "dance";
-                app.main.choiceButtons.cFour.text = "slap";
-                app.main.choiceButtons.cFive.text = "bribe";
-                app.main.choiceButtons.cSix.text = "ignore";
+                randomizeAnswers(app.main.currentEnemy);
                 
                 
             } else if (app.main.map[playerLocation.row][playerLocation.col] == 6) {
@@ -399,12 +395,30 @@ app.main = function(){
         }
 	}
 
-
+    //Create a random wizard
+    function randomWizard() {
+        var first = Math.floor(Math.random() * 4);
+        var second = Math.floor(Math.random() * 4);
+        return {
+            type: 'wizlock',
+            trait1: app.main.wizardAdjective1[first],
+            trait2: app.main.wizardAdjective2[second],
+            correct: app.main.wizardActionReference[first][second]
+        };
+    }
     //Will randomize the answers of the buttons
     //
     //
-    function randomizeAnswers() {
-
+    function randomizeAnswers(enemy) {
+        if (enemy.type == 'wizlock') {
+            app.main.choiceButtons.cOne.text = enemy.correct;
+            app.main.choiceButtons.cTwo.text = "admire";
+            app.main.choiceButtons.cThree.text = "dance";
+            app.main.choiceButtons.cFour.text = "slap";
+            app.main.choiceButtons.cFive.text = "bribe";
+            app.main.choiceButtons.cSix.text = "ignore";
+        }
+        
     }
 
     //Change the encounterText based off of talk or inspect button push
@@ -425,12 +439,12 @@ app.main = function(){
         //console.dir(text);
         //Arbitrary correct answer
         if (app.main.map[playerLocation.row][playerLocation.col] == 5) {
-            if (text == "slap") {
+            if (text == app.main.enemy.correct) {
                 app.main.map[playerLocation.row][playerLocation.col] = 3;
                 app.main.currentState = app.main.gameStates.TRAVELING;
             }
         } else if (app.main.map[playerLocation.row][playerLocation.col] == 6) {
-            if (text == "run") {
+            if (text == app.main.enemy2.correct) {
                 app.main.map[playerLocation.row][playerLocation.col] = 3;
                 app.main.currentState = app.main.gameStates.TRAVELING;
             }
