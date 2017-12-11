@@ -24,23 +24,47 @@ app.renderer = function(){
 	var canvas = undefined; // will be initialized onload (see addOnLoadEvent below)
 	var ctx = undefined;
 
-	var VERYIMPORTANTDEBUGIMAGE; // delete soon. very, very soon.
+	//var VERYIMPORTANTDEBUGIMAGE; // delete soon. very, very soon.
 
 
 
 	// the main renderer update
 	obj.draw = function(){
 		ctx.clearRect(0,0,canvas.width, canvas.height);
-		ctx.drawImage(VERYIMPORTANTDEBUGIMAGE, 0, 0);
+		//ctx.drawImage(VERYIMPORTANTDEBUGIMAGE, 0, 0);
         
         // if showing a sprite
         //if (in battle){
             var enemySprite = app.sprites.getCurrentSprite();
             //console.log(enemySprite);
-            for (var i = 0; i < enemySprite.length; i++){
-                ctx.drawImage(enemySprite[i], 0, 0, 682, 702);
-                //console.log(i);
+            switch (app.main.currentState) {
+                case 0:
+                    for (var i = 0; i < enemySprite.length; i++) {
+                        ctx.drawImage(enemySprite[i], (canvas.width * .5) - (enemySprite[i].width / 2.5 / 2), (canvas.height * .2) + (enemySprite[i].height / 2.5 / 2), enemySprite[i].width / 2.5, enemySprite[i].height / 2.5);
+                        //console.log(i);
+                    }
+                    break;
+
+                case 1:
+
+                    break;
+
+                case 2:
+
+                	break;
+
+                case 3: // the start screen 
+                	ctx.save();
+                	ctx.font = "30px Special Elite";
+                	ctx.fillText("Welcome to Quest Support!", 10, 50);
+                	ctx.fillText("You are the adventurer. This screen is for your eyes only, and should not be shown to the guide.", 10, 100);
+                	ctx.fillText("Do not look at the manual at any time while playing!", 10, 150);
+                	ctx.fillText("(Click Anywhere to Continue)", 10, 200);
+                	ctx.restore();
+                	break;
+
             }
+            
         //}
         
         
@@ -63,8 +87,8 @@ app.renderer = function(){
 			canvas.height = window.innerHeight;
 		};
 
-		VERYIMPORTANTDEBUGIMAGE = new Image();
-		VERYIMPORTANTDEBUGIMAGE.src = "assets/feelincagey.jpg";
+		//VERYIMPORTANTDEBUGIMAGE = new Image();
+		//VERYIMPORTANTDEBUGIMAGE.src = "assets/feelincagey.jpg";
 
 	}.bind(obj)); // we need the .bind(this) here, because the scope of the function will be wiped out
 				  // when composed with other functions and added to an event listener 

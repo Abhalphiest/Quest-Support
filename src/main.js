@@ -20,14 +20,65 @@ app.main = function(){
 	// this obj will eventually be app.main
 	var obj = {};
 	
-	var playerLocation = {row: 0, col: 0};
+	var playerLocation = {row: 1, col: 0};
 	
-	obj.map = [[1, 0, 1, 1],
+	obj.map = [[5, 0, 6, 4],
 		       [1, 1, 1, 0],
-			   [0, 0, 1, 0]];
+               [0, 0, 1, 0]];
+
+    // warlock reference sheet, [row, column]
     
-    obj.enemy = {type: 'wizlock', trait1: 'timid', trait2: 'talkative'};
-	
+    obj.enemy = { type: 'wizlock', trait1: 'timid', trait2: 'talkative' };
+
+    obj.warlockAdjective1 = ["dastardly", "foppish", "grumpy", "sassy"];
+
+    obj.warlockAdjective2 = ["sashaying", "timid", "mesmerizing", "evangelizing"];
+
+    obj.warlockActionReference = [["rebuke", "slap", "look away", "pray"],
+                                  ["admire", "throw dirt", "ignore", "bribe"],
+                                  ["ignore", "hug", "slap", "humor"],
+                                  ["dance", "humor", "talk", "rebuke"]];
+
+    // wizard reference sheet, [row, column]
+
+    obj.wizardAdjective1 = ["timid", "foppish", "determined", "sassy"];
+
+    obj.wizardAdjective2 = ["feisty", "talkative", "happy", "caring"];
+
+    obj.wizardActionReference = [["rebuke", "humor", "ignore", "sit down"],
+                                  ["trip", "bribe", "admire", "talk"],
+                                  ["elude", "talk", "engage", "acquiesce"],
+                                  ["match wits", "engage", "high-five", "venerate"]];
+
+    //unfinished
+    
+    //obj.ghoulAdjective1 = ["Timid", "Foppish", "Determined", "Sassy"];
+    //
+    //obj.ghoulAdjective2 = ["Feisty", "Talkative", "Happy", "Caring"];
+    //
+    //obj.ghoulActionReference = [["Rebuke", "Humor", "Ignore", "Sit Down"],
+    //                              ["Trip", "Bribe", "Admire", "Talk"],
+    //                              ["Elude", "Talk", "Engage", "Acquiesce"],
+    //                              ["Match Wits", "Engage", "High-Five", "Venerate"]];
+    //
+    //obj.wraithAdjective1 = ["Timid", "Foppish", "Determined", "Sassy"];
+    //
+    //obj.wraithAdjective2 = ["Feisty", "Talkative", "Happy", "Caring"];
+    //
+    //obj.wraithActionReference = [["Rebuke", "Humor", "Ignore", "Sit Down"],
+    //                              ["Trip", "Bribe", "Admire", "Talk"],
+    //                              ["Elude", "Talk", "Engage", "Acquiesce"],
+    //                              ["Match Wits", "Engage", "High-Five", "Venerate"]];
+    //
+    //obj.slimeAdjective1 = ["Timid", "Foppish", "Determined", "Sassy"];
+    //
+    //obj.slimeAdjective2 = ["Feisty", "Talkative", "Happy", "Caring"];
+    //
+    //obj.slimeActionReference = [["Rebuke", "Humor", "Ignore", "Sit Down"],
+    //                              ["Trip", "Bribe", "Admire", "Talk"],
+    //                              ["Elude", "Talk", "Engage", "Acquiesce"],
+    //                              ["Match Wits", "Engage", "High-Five", "Venerate"]];
+
 	//Buttons
 	obj.directionButtons = {};
 
@@ -66,91 +117,248 @@ app.main = function(){
 		return obj;
 	}();
 	
-	obj.init = function(){
-		//Initialization code goes here?
-		
-		var canvas = document.querySelector("canvas");
-		var ctx = canvas.getContext('2d');
-		
-		canvas.onmousemove = function(e){
-			var mouse = getMouse(e);
-			callFunctionMovementButtons.call(app.main, "checkHover", mouse);
-		};
-		
-		canvas.onmousedown = function(e){
-			var mouse = getMouse(e);
-			callFunctionMovementButtons.call(app.main, "checkClick", mouse);
-		};
-		
-		app.main.directionButtons = {
-			left: new Button(ctx, canvas.width / 2 - 250, canvas.height / 2 - 50, 200, 100, "grey", "green", "red", "white", "Go Left",
-			function(){movePlayer("left")}),
-			right: new Button(ctx, canvas.width / 2 + 100, canvas.height / 2 - 50, 200, 100, "grey", "green", "red", "white", "Go Right",
-			function(){movePlayer("right")}),
-			up: new Button(ctx, canvas.width / 2 - 100, canvas.height / 2 - 200, 200, 100, "grey", "green", "red", "white", "Go Up",
-			function(){movePlayer("up")}),
-			down: new Button(ctx, canvas.width / 2 - 100, canvas.height / 2 + 100, 200, 100, "grey", "green", "red", "white", "Go Down",
-			function(){movePlayer("down")})
-		};
+    obj.init = function () {
+        //Initialization code goes here?
+
+        var canvas = document.querySelector("canvas");
+        var ctx = canvas.getContext('2d');
+
+
+        canvas.onmousemove = function (e) {
+            var mouse = getMouse(e);
+            callFunctionMovementButtons.call(app.main, "checkHover", mouse);
+            callFunctionEncounterButtons.call(app.main, "checkHover", mouse);
+        };
+
+        canvas.onmousedown = function (e) {
+            var mouse = getMouse(e);
+            if (app.main.currentState == app.main.gameStates.INSTRUCTIONS) {
+                app.main.currentState = app.main.gameStates.TRAVELING;
+                return;
+            }
+            callFunctionMovementButtons.call(app.main, "checkClick", mouse);
+            callFunctionEncounterButtons.call(app.main, "checkClick", mouse);
+        };
+
+        app.main.directionButtons = {
+            left: new Button(ctx, canvas.width / 2 - 250, canvas.height / 2 - 50, 200, 100, "grey", "green", "red", "white", "Go Left",
+                function () { movePlayer("left") }),
+            right: new Button(ctx, canvas.width / 2 + 100, canvas.height / 2 - 50, 200, 100, "grey", "green", "red", "white", "Go Right",
+                function () { movePlayer("right") }),
+            up: new Button(ctx, canvas.width / 2 - 100, canvas.height / 2 - 200, 200, 100, "grey", "green", "red", "white", "Go Up",
+                function () { movePlayer("up") }),
+            down: new Button(ctx, canvas.width / 2 - 100, canvas.height / 2 + 100, 200, 100, "grey", "green", "red", "white", "Go Down",
+                function () { movePlayer("down") })
+        };
+        app.main.choiceButtons = {
+            cOne: new Button(ctx, (canvas.width / 8), (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "1",
+                function () { checkAnswer(app.main.choiceButtons.cOne.text); }),
+            cTwo: new Button(ctx, (canvas.width / 8) * 2, (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "2",
+                function () { checkAnswer(app.main.choiceButtons.cTwo.text); }),
+            cThree: new Button(ctx, (canvas.width / 8) * 3, (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "3",
+                function () { checkAnswer(app.main.choiceButtons.cThree.text); }),
+            cFour: new Button(ctx, (canvas.width / 8) * 4, (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "4",
+                function () { checkAnswer(app.main.choiceButtons.cFour.text); }),
+            cFive: new Button(ctx, (canvas.width / 8) * 5, (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "5",
+                function () { checkAnswer(app.main.choiceButtons.cFive.text); }),
+            cSix: new Button(ctx, (canvas.width / 8) * 6, (canvas.height / 5), 200, 50, "grey", "green", "red", "white", "6",
+                function () { checkAnswer(app.main.choiceButtons.cSix.text); })
+        };
+        app.main.otherButtons = {
+            talk: new Button(ctx, canvas.width / 2 - 375, canvas.height - 100, 200, 50, "grey", "green", "red", "white", "Talk",
+                function () { changeEncounterText(app.main.otherButtons.talk.text); }),
+            inspect: new Button(ctx, canvas.width / 2 + 175, canvas.height - 100, 200, 50, "grey", "green", "red", "white", "Inspect",
+                function () { changeEncounterText(app.main.otherButtons.inspect.text); }),
+        };
+
+        app.main.enemy = randomWizard();
+        console.dir(app.main.enemy);
+        app.main.enemy2 = { type: 'slime', trait1: 'grape', trait2: 'aggressive', correct: 'run' };
         
-        
-        app.main.enemy = {type: 'wizlock', trait1: 'grumpy', trait2: 'mesmerizing'};
         app.sprites.setSprite(obj.enemy);
+      
+        app.main.talkReferenceList = {};
+        app.main.talkReferenceList["foppish"] = "Ugh, please take care not to get your filthy adventuring grime on my new outfit. It's woven from the finest silk, so I implore you to be cautious";
+        app.main.talkReferenceList["timid"] = "Uh... um... hey there. Oh uh - I mean you, you better be scared! Darn that wasn't as intimidating as I wanted it to be... um...";
+        app.main.talkReferenceList["happy"] = "This may be my first day on the job, but I'm pretty excited to test my mettle against some worthy adventurers!";
+        app.main.talkReferenceList["sassy"] = "Pfff what are you supposed to be? Some adventurer wanna-be? I've seen better costumes at a Halloween party for kids.";
+        app.main.talkReferenceList["feisty"] = "Come at me foe! Come on, take a stab if you think you’re so high and mighty.";
+        app.main.talkReferenceList["talkative"] = "Oh hey! What are you doing here? It's been like, forever since I saw a regular human. Dungeon dwellers aren't usually friends with people on the surface ya know, but we could be friends! Come on let's be friends, whaddaya say? Huh? Huh???";
+        app.main.talkReferenceList["grumpy"] = "Hmph. Do what you want, it's not like I care. Do you honestly think I got a Master's degree in villainy just so I could waste time fighting you?";
+        app.main.talkReferenceList["dastardly"] = "I hope you're prepared to be completely and utterly destroyed. What a foolish adventurer you are to challenge the likes of ME.";
+        app.main.talkReferenceList["sashaying"] = "You look a little tense young adventurer. Why not try relaxing a bit more, perhaps dancing to the rhythm of your soul. That's it, more hip and shoulder movement! Just let the imaginary music guide your every move.";
+        app.main.talkReferenceList["mesmerizing"] = "It's not everyday you find a specimen as breathtakingly captivating as myself. Do take a moment to take it all in if you need.";
+        app.main.talkReferenceList["evangelizing"] = "You there, adventurer! Please take this pamphlet! It details the promises made to us by the lord and savior himself, Satan. It also explains how Satan will lead us to a new era of corruption and sin!";
+        app.main.talkReferenceList["determined"] = "I don't care who you are or even why you're here. The simple reality is this- you're standing in my way, and I'm going to get you OUT of my way. I have to finish my work even it costs me my life.";
+        app.main.talkReferenceList["caring"] = "Listen, I know you came down here to fight me, but before you do that, why don't we have a nice chat over some tea and cakes? You look awfully tired and in need of a nice rest." ; 
+        app.main.talkReferenceList["gardening"] = "Oh oh! You there, adventurer! Here, have a squash from my vegetable patch. They won't be good for much longer and I can't eat them all by myself.";
+        app.main.talkReferenceList["embarrassed"] = "P- p - please go away, I don't like talking to people, e - especially adventurers… *mumble * *mumble * stop staring at me... *mumble*";
+        app.main.talkReferenceList["investigative"] = "Hmm... mhmm... yes I see, that would make sense considering... OH, ADVENTURER, please come take a look at this, will you? It seems rather incriminating, does it not?";
+        app.main.talkReferenceList["spooky"] = "BOOOOO! Ha, did I scare ya? Huh? Did I? Yeah I can see it on your face. Well that's what you get for wandering around in this dungeon, all alone and unprepared!";
+        app.main.talkReferenceList["hyperdimensional"] = "Ah yes, adventurer #348, welcome to my domain. Congratulations, you arrived exactly on time! Now if you would, please do whatever it is you needed to do, and leave me to watch Rick and Morty. What? It’s a TV sho- err nevermind, forget I said anything.";
+        app.main.talkReferenceList["freezing"] = "H-h-hello there adventurer! D-d-do you happen to have a spare blanket on you? I really need one you see. I ran out of firewood months ago, and have been stuck down here in the cold.";
+        app.main.talkReferenceList["daring"] = "What say you to a challenge, adventurer? There's a nearby cave full of goblins, and whoever can slay the most in 5 minutes will prove that they are the mightiest and strongest.";
+        app.main.talkReferenceList["tasteless"] = "Welcome adventurer! I just baked some oatmeal raisin cookies, would you like some? No? Perhaps you’d like a freshly salted apple?";
+        app.main.talkReferenceList["wealthy"] = "Mmmm would you care for some money, poor adventurer? If you spare me and take your leave, I'll make you a millionaire!";
+        app.main.talkReferenceList["hungry"] = "Nom nom nom, this is delicious! I can't believe I'm finally eating again after 30 years. What luck that I would happen upon some freshly made human food today!";
+        app.main.talkReferenceList["crazy"] = "Who are you? What now? An adventurer? No no you're a monster! Yes yes, that's right. All I need to do is imagine you aren't here and you'll go away!";
+        app.main.talkReferenceList["melodic"] = "La la la! Do re mi fa so la ti do! Ahem, dear adventurer, won't you listen to my song? I've been working on it for so long you see. There was no one down here to listen to it, but now you're here!";
+        app.main.talkReferenceList["grape"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["strawberry"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["lime"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["cherry"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["stagnant"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["jiggling"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["sagacious"] = "What are you doing, it's a slime";
+        app.main.talkReferenceList["aggressive"] = "What are you doing, it's a slime";
+
+
+        app.main.inspectReferenceList = {};
+        app.main.inspectReferenceList["timid"] = "*The enemy is huddling in a corner, appearing to be frightened of you*";
+        app.main.inspectReferenceList["foppish"] = "*You can't help but admire the enemy's style, but you don't so much care for their pompous attitude*";
+        app.main.inspectReferenceList["happy"] = "*It seems as though rays of sunshine are emanating from the enemy's face*";
+        app.main.inspectReferenceList["sassy"] = "*The enemy is insulting you in a playful manner*";
+        app.main.inspectReferenceList["feisty"] = "*The enemy is energetically waving its fists like it wants to fight*";
+        app.main.inspectReferenceList["talkative"] = "*You don't think you've seen this enemy close their mouth once since you encountered them*";
+        app.main.inspectReferenceList["grumpy"] = "*As soon as you walk up to them, they cross their arms, look away from you and utter a grunting noise*";
+        app.main.inspectReferenceList["dastardly"] = "*You feel a great force of evil emanating from them*";
+        app.main.inspectReferenceList["sashaying"] = "*Sways hips from side-to-side*";
+        app.main.inspectReferenceList["mesmerizing"] = "*You find your attention inexorably drawn to them*";
+        app.main.inspectReferenceList["evangelizing"] = "*The enemy is holding out a pamphlet as if expecting you to take one*";
+        app.main.inspectReferenceList["determined"] = "*The look they're giving you pierces right through your heavy armor to your very soul*";
+        app.main.inspectReferenceList["caring"] = "*This enemy has such a nice demeanor they could - and might just be - your mother in disguise*";
+        app.main.inspectReferenceList["gardening"] = "*You notice this enemy's thumb is glowing bright green. You wonder if it’s symbolic or if it's the result of a terrible disease.*";
+        app.main.inspectReferenceList["embarrassed"] = "*This enemy won't stop fidgeting and seems like it wants to crawl right out of it's skin. You wonder why.*";
+        app.main.inspectReferenceList["investigative"] = "*This enemy is pacing back and forth, and seems to be very engaged in its work. You can tell just by looking, that their actions are very methodical and logical.*";
+        app.main.inspectReferenceList["spooky"] = "*As you see the enemy appear, fear strikes your heart and you can feel all of the hairs on your skin stand up. The creature is probably docile and harmless, but it scares you to no end.*";
+        app.main.inspectReferenceList["hyperdimensional"] = "*Whatever this creature is, it is most certainly a being of a higher order. You can't quite put a finger on it, but you feel powerless against it.*";
+        app.main.inspectReferenceList["freezing"] = "*This enemy is shaking uncontrollably! They doesn't seem to be scared, but instead perhaps very cold.*";
+        app.main.inspectReferenceList["daring"] = "*This enemy looks very full of themselves, but at the same time you can't deny that they’re very impressive looking.*";
+        app.main.inspectReferenceList["tasteless"] = "*This enemy seems like it has a terrible sense of judgement when it comes to. well just about everything- especially food.*";
+        app.main.inspectReferenceList["wealthy"] = "*This enemy could not be making it any more obvious that it is has a tremendous amount of cash.*";
+        app.main.inspectReferenceList["hungry"] = "*As you approach this enemy you begin to hear a constant low rumbling that seems to be coming from their stomach. It's a little disturbing, but also very relatable.*";
+        app.main.inspectReferenceList["crazy"] = "*You can't be sure just by looking, but you get the feeling that this enemy may be missing a marble or two.*";
+        app.main.inspectReferenceList["melodic"] = "*This enemy has quite a beautiful voice. If you weren't on an important adventure, you might consider listening to the creature sing.*";
+        app.main.inspectReferenceList["grape"] = "*You lick it*";
+        app.main.inspectReferenceList["strawberry"] = "*You lick it*";
+        app.main.inspectReferenceList["lime"] = "*You lick it*";
+        app.main.inspectReferenceList["cherry"] = "*You lick it*";
+        app.main.inspectReferenceList["stagnant"] = "*Reeks like a swamp*";
+        app.main.inspectReferenceList["jiggling"] = "*The slime is constantly moving*";
+        app.main.inspectReferenceList["sagacious"] = "*Looks as if it mught know more than you do*";
+        app.main.inspectReferenceList["aggressive"] = "*Contains the remains of past foes*";
+
+        app.main.gameStates = {
+            ENCOUNTER : 0,
+            TRAVELING: 1,
+            ENDING: 2,
+            INSTRUCTIONS: 3,
+        }
+        app.main.turnsRemaining = 10;
+        app.main.currentState = app.main.gameStates.INSTRUCTIONS;
+        app.main.currentEnemy = app.main.enemy;
+        app.main.ctx = ctx;
+        app.main.encounterText = "STARTING ENCOUNTER TEXT";
+        
 	}
 
 	obj.update = function(){
 		requestAnimationFrame(app.main.update.bind(app.main));
-		app.renderer.draw();
-		callFunctionMovementButtons.call(this, "drawAndUpdate");
+        app.renderer.draw();
+        if (app.main.currentState != app.main.gameStates.ENDING) {
+            
+            if (app.main.currentState == app.main.gameStates.TRAVELING) {
+                callFunctionMovementButtons.call(this, "drawAndUpdate");
+                //this.ctx.fillText(app.main.turnsRemaining, 100, 75);
+            }
+            if (app.main.currentState == app.main.gameStates.ENCOUNTER) {
+                callFunctionEncounterButtons.call(this, "drawAndUpdate");
+                //this.ctx.fillText(app.main.turnsRemaining, 100, 75);
+            }
+        } else {
+            this.ctx.font = "20pt verdana";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText("End of the current floor", 500, 500);  
+        }
 	};
 	
-	function callFunctionMovementButtons(f, arg){
-		var movement = checkMovement();
-		if(movement[0]) this.directionButtons.down[f](arg);
-		if(movement[1]) this.directionButtons.up[f](arg);
-		if(movement[2]) this.directionButtons.right[f](arg);
-		if(movement[3]) this.directionButtons.left[f](arg);
-	}
+    function callFunctionMovementButtons(f, arg) {
+            var movement = checkMovement();
+            if (movement[0]) {
+                this.directionButtons.down[f](arg);
+            }
+            if (movement[1]) {
+                this.directionButtons.up[f](arg)
+            };
+            if (movement[2]) {
+                this.directionButtons.right[f](arg)
+            };
+            if (movement[3]) {
+                this.directionButtons.left[f](arg)
+            };
+            this.ctx.font = "20pt verdana";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText("Turns Remaining: " + app.main.turnsRemaining, 200, 75);
+    }
+
+    function callFunctionEncounterButtons(f, arg) {
+        
+            app.main.choiceButtons.cOne[f](arg);
+            //app.main.choiceButtons.cOne.text = "7";
+            app.main.choiceButtons.cTwo[f](arg);
+            app.main.choiceButtons.cThree[f](arg);
+            app.main.choiceButtons.cFour[f](arg);
+            app.main.choiceButtons.cFive[f](arg);
+            app.main.choiceButtons.cSix[f](arg);
+            app.main.otherButtons.talk[f](arg);
+            app.main.otherButtons.inspect[f](arg);
+            this.ctx.font = "20pt verdana";
+            this.ctx.fillStyle = "black";
+            //this.ctx.textAlign = "left";
+            //this.ctx.fillText(app.main.encounterText, 500, 100);
+            wrapText(this.ctx, app.main.encounterText, 950, 75, 1000, 30);
+            this.ctx.fillText("Turns Remaining: " +app.main.turnsRemaining, 200, 75);
+    }
 	
 	function checkMovement(){
 		var movement = [];
 		var map = app.main.map;
 		
 		//Down
-		if(playerLocation.row < map.length - 1 && map[playerLocation.row + 1][playerLocation.col] == 1){
+		if(playerLocation.row < map.length - 1 && map[playerLocation.row + 1][playerLocation.col] != 0){
 			movement.push(1);
 		} else {
 			movement.push(0);
 		}
 		
 		//Up
-		if(playerLocation.row > 0 && map[playerLocation.row - 1][playerLocation.col] == 1){
+		if(playerLocation.row > 0 && map[playerLocation.row - 1][playerLocation.col] != 0){
 			movement.push(1);
 		} else {
 			movement.push(0);
 		}
 		
 		//Right
-		if(playerLocation.col < map[0].length - 1 && map[playerLocation.row][playerLocation.col + 1] == 1){
+		if(playerLocation.col < map[0].length - 1 && map[playerLocation.row][playerLocation.col + 1] != 0){
 			movement.push(1);
 		} else {
 			movement.push(0);
 		}
 		
 		//Left
-		if(playerLocation.col > 0 && map[playerLocation.row][playerLocation.col - 1] == 1){
+		if(playerLocation.col > 0 && map[playerLocation.row][playerLocation.col - 1] != 0){
 			movement.push(1);
 		} else {
 			movement.push(0);
 		}
-		
+        
 		return movement;
 	}
 	
 	function movePlayer(direction){
 		switch(direction){
 		case "down":
-			playerLocation.row++;
+            playerLocation.row++;               
 			break;
 		case "up":
 			playerLocation.row--;
@@ -161,9 +369,92 @@ app.main = function(){
 		case "left":
 			playerLocation.col--;
 			break;
-		}
+        }
+        if (app.main.map[playerLocation.row][playerLocation.col] >= 5) {
+            app.main.currentState = app.main.gameStates.ENCOUNTER;
+            if (app.main.map[playerLocation.row][playerLocation.col] == 5) {
+                app.main.encounterText = "You have encountered a random " + obj.enemy.type;
+                app.main.currentEnemy = obj.enemy;
+                app.sprites.setSprite(obj.enemy);
+                randomizeAnswers(app.main.currentEnemy);
+                
+                
+            } else if (app.main.map[playerLocation.row][playerLocation.col] == 6) {
+                app.main.encounterText = "You have encountered a random " + obj.enemy2.type;
+                app.main.currentEnemy = obj.enemy2;
+                app.sprites.setSprite(obj.enemy2);
+                app.main.choiceButtons.cOne.text = "help";
+                app.main.choiceButtons.cTwo.text = "admire";
+                app.main.choiceButtons.cThree.text = "torch";
+                app.main.choiceButtons.cFour.text = "run";
+                app.main.choiceButtons.cFive.text = "talk";
+                app.main.choiceButtons.cSix.text = "eat";
+            }
+        }
+        if (app.main.map[playerLocation.row][playerLocation.col] == 4) {
+            app.main.currentState = app.main.gameStates.ENDING;
+        }
 	}
 
+    //Create a random wizard
+    function randomWizard() {
+        var first = Math.floor(Math.random() * 4);
+        var second = Math.floor(Math.random() * 4);
+        return {
+            type: 'wizlock',
+            trait1: app.main.wizardAdjective1[first],
+            trait2: app.main.wizardAdjective2[second],
+            correct: app.main.wizardActionReference[first][second]
+        };
+    }
+    //Will randomize the answers of the buttons
+    //
+    //
+    function randomizeAnswers(enemy) {
+        if (enemy.type == 'wizlock') {
+            app.main.choiceButtons.cOne.text = enemy.correct;
+            app.main.choiceButtons.cTwo.text = "admire";
+            app.main.choiceButtons.cThree.text = "dance";
+            app.main.choiceButtons.cFour.text = "slap";
+            app.main.choiceButtons.cFive.text = "bribe";
+            app.main.choiceButtons.cSix.text = "ignore";
+        }
+        
+    }
+
+    //Change the encounterText based off of talk or inspect button push
+    function changeEncounterText(text) {
+        if (text == "Talk") {
+            //console.dir(app.main.currentEnemy.trait1);
+            app.main.encounterText = app.main.talkReferenceList[app.main.currentEnemy.trait1];
+            //app.main.encounterText = app.main.talkReferenceList["happy"];
+        }
+        else if (text == "Inspect") {
+            app.main.encounterText = app.main.inspectReferenceList[app.main.currentEnemy.trait2];
+        }
+    }
+
+    //Check if answer is correct
+    //
+    function checkAnswer(text) {
+        //console.dir(text);
+        //Arbitrary correct answer
+        if (app.main.map[playerLocation.row][playerLocation.col] == 5) {
+            if (text == app.main.enemy.correct) {
+                app.main.map[playerLocation.row][playerLocation.col] = 3;
+                app.main.currentState = app.main.gameStates.TRAVELING;
+            }
+        } else if (app.main.map[playerLocation.row][playerLocation.col] == 6) {
+            if (text == app.main.enemy2.correct) {
+                app.main.map[playerLocation.row][playerLocation.col] = 3;
+                app.main.currentState = app.main.gameStates.TRAVELING;
+            }
+        }
+       // decreaseTurn();
+    }
+
+    
+    
 	return obj;
 }();
 
@@ -201,6 +492,10 @@ function addOnLoadEvent(f){
 
 };
 
+
+
+
+
 //This is going here for now, because I'm not sure where else to put it
 
 //Get the position of the mouse relative to the display canvas
@@ -229,7 +524,6 @@ function Button(ctx, x, y, width, height, color, hoverColor, selectColor, textCo
 	this.text = text;
 	this.callback = callback;
 	this.state = "normal";
-	
 	//Update the button's state
 	this.setState = function(state){
 		this.state = state;
@@ -237,25 +531,24 @@ function Button(ctx, x, y, width, height, color, hoverColor, selectColor, textCo
 	
 	//Draw and update the button according to its state
 	this.drawAndUpdate = function(){
-		this.ctx.save();
-		switch(this.state){
-			case "normal":
-				this.ctx.fillStyle = this.color;
-				break;
-			case "hover":
-				this.ctx.fillStyle = this.hoverColor;
-				break;
-			case "select":
-				this.ctx.fillStyle = this.selectColor;
-				break;
-		}
-		this.ctx.fillRect(this.x, this.y, this.width, this.height);
-		this.ctx.textBaseline = "middle";
-		this.ctx.textAlign = "center";
-		this.ctx.font = "30pt verdana";
-		this.ctx.fillStyle = this.textColor;
-		this.ctx.fillText(this.text, this.x + this.width / 2, this.y + this.height / 2);
-		this.ctx.restore();
+        this.ctx.save();
+        switch (this.state) {
+            case "normal":
+                this.ctx.fillStyle = this.color;
+                break;
+            case "hover":
+                this.ctx.fillStyle = this.hoverColor;
+                break;
+            case "select":
+                this.ctx.fillStyle = this.selectColor;
+                break;
+        }
+        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.ctx.textBaseline = "middle";
+        this.ctx.textAlign = "center";
+        this.ctx.font = "30pt verdana";
+        this.ctx.fillStyle = this.textColor;
+        this.ctx.fillText(this.text, this.x + this.width / 2, this.y + this.height / 2);
 	}
 	
 	//Check to see if the mouse is hovering over the button
@@ -266,8 +559,36 @@ function Button(ctx, x, y, width, height, color, hoverColor, selectColor, textCo
 	//Check to see if the mouse has clicked the button
 	this.checkClick = function(mouse){
 		this.state = mouse.x > this.x && mouse.x < this.x + this.width && mouse.y > this.y && mouse.y < this.y + this.height ? "select" : "normal";
-		if(this.state == "select"){
+        if (this.state == "select") {
+            decreaseTurn();
 			this.callback();
 		}
-	}
+    }
+
+ 
+}
+
+function wrapText(context, text, x, y, maxWidth, lineHeight) {
+    var words = text.split(' ');
+    var line = '';
+
+    for (var n = 0; n < words.length; n++) {
+        var testLine = line + words[n] + ' ';
+        var metrics = context.measureText(testLine);
+        var testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+            context.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+        }
+        else {
+            line = testLine;
+        }
+    }
+    context.fillText(line, x, y);
+}
+
+function decreaseTurn() {
+    app.main.turnsRemaining--;
+    console.dir(app.main.turnsRemaining);
 }
