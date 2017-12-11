@@ -94,7 +94,7 @@ app.main = function(){
 		};
         
         
-        app.main.enemy = {type: 'wizlock', trait1: 'foppish', trait2: 'sashaying'};
+        app.main.enemy = {type: 'wizlock', trait1: 'grumpy', trait2: 'mesmerizing'};
         app.sprites.setSprite(obj.enemy);
 	}
 
